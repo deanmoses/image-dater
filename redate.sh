@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# This program is used to set the EXIF date taken for a directory of images.
+# This bash script sets the EXIF 'date taken' for a directory of images.
 # The directory structure must be like this:  /Some/Path/To/Photos/2001/12-31
 # It looks at the directory names and figures out what the date should be from that.
 #
