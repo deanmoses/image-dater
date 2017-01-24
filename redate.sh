@@ -59,42 +59,59 @@ for i in *; do
 		
 		# From the image's EXIF data, get the capture date aka date taken.
 		# This requires the exiftool 3rd party library to be installed.
-		currentexifdate=$(exiftool -s3 -createdate $photoFilename)
+		currentExifDate=$(exiftool -s3 -datetimeoriginal $photoFilename)
 		#echo "currentexifdate: $currentexifdate"
 		
 		# The EXIF date is of format 2001:12:31 11:59:59
 		# To make it easier to parse, substitute : for ' ' so it becomes
 		# 2001 12 31 11 59 59
-		currentExifDateWithSpaces=${currentexifdate//[:]/ }
+		currentExifDateWithSpaces=${currentExifDate//[:]/ }
 		#echo "currentExifDateWithSpaces: $currentExifDateWithSpaces"
 		
 		# Create array of date parts by splitting on spaces
 		currentExifDateArr=($currentExifDateWithSpaces)
 		currentExifYear=${currentExifDateArr[0]}
+		currentExifMonth=${currentExifDateArr[1]}
+		currentExifDay=${currentExifDateArr[2]}
 		#echo "currentExifYear: $currentExifYear"
+		#echo "currentExifMonth: $currentExifMonth"
 
 		# If the photo's year is the same as the directory structure,
 		# don't do anything.
-		if [ "${currentExifYear}" == "${year}" ];then
-			echo "Year matches -- everything is cool with $photoFilename"
+		if [ "${currentExifYear}" == "${year}" ] && [ "${currentExifMonth}" == "${month}" ];then
+			# If the year and month are correct
+			echo "Year & month matches -- everything is cool with $photoFilename"
 		else
-			echo "Year does not match for $photoFilename -- setting new EXIF dates"
-			# If the year is NOT right, update the EXIF date
+			# If the year or month not correct...
+			echo "$currentExifYear/$currentExifMonth/$currentExifDay isn't correct for: $photoFilename"
+
+			#
+			# Update the EXIF date
+			#
 			
 			# Create the EXIF datestring of format 2001:12:31 11:59:59
 			newExifDate="$year:$month:$day 00:00:00"
 			#echo "newExifDate: $newExifDate"
 			
 			# Set new EXIF date on image file
-			exiftool -overwrite_original_in_place -AllDates="$newExifDate" $photoFilename
+			#
+			# UNCOMMENT THE FOLLOWING LINE TO SET THE EXIF date
+			#######exiftool -overwrite_original_in_place -AllDates="$newExifDate" $photoFilename
+			#
 			
+			#
 			# Update the filesystem dateCreated
+			#
+			
 			# It's of format YYYYMMDDhhmm
 			# 2001/12/31 00:00 would be 200112310000 
 			hhmm='0000'
 			dateCreatedString="$year$month$day$hhmm"
 			#echo "dateCreatedString: $dateCreatedString"
-			touch -t $dateCreatedString $photoFilename
+			
+			# UNCOMMENT THE FOLLOWING LINE TO SET THE FILE'S DATE CREATED & MODIFIED
+			#######touch -t $dateCreatedString $photoFilename
+			#
 		fi
     fi
 done
